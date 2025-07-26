@@ -26,15 +26,19 @@ def load_model():
     
     logger.info("Loading model...")
     
-    model_name = os.getenv("MODEL_NAME", "thuanhero1/llama3-8b-finetuned-ctu")
+    # Load base model first
+    base_model_name = os.getenv("BASE_MODEL_NAME", "unsloth/llama-3-8b-bnb-4bit")
+    lora_adapter_name = os.getenv("LORA_ADAPTER_NAME", "thuanhero1/llama3-8b-finetuned-ctu")
     
-    # Load tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    logger.info(f"Loading base model: {base_model_name}")
+    
+    # Load tokenizer from the LoRA adapter (it has the correct tokenizer)
+    tokenizer = AutoTokenizer.from_pretrained(lora_adapter_name)
     tokenizer.pad_token = tokenizer.eos_token
     
-    # Load model with optimization
+    # Load base model with optimization
     model = AutoModelForCausalLM.from_pretrained(
-        model_name,
+        base_model_name,
         torch_dtype=torch.float16,
         device_map="auto",
         trust_remote_code=True,
@@ -43,6 +47,11 @@ def load_model():
         bnb_4bit_compute_dtype=torch.float16,
         bnb_4bit_use_double_quant=True
     )
+    
+    # Load LoRA adapter from HuggingFace
+    logger.info(f"Loading LoRA adapter: {lora_adapter_name}")
+    from peft import PeftModel
+    model = PeftModel.from_pretrained(model, lora_adapter_name)
     
     # Load LoRA adapter if exists
     lora_path = os.getenv("LORA_PATH", "/app/llama3-8b-finetuned-ctu")
