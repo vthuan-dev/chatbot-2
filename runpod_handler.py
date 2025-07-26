@@ -32,9 +32,10 @@ def load_model():
     
     logger.info(f"Loading base model: {base_model_name}")
     
-    # Load tokenizer from the LoRA adapter (it has the correct tokenizer)
-    tokenizer = AutoTokenizer.from_pretrained(lora_adapter_name)
-    tokenizer.pad_token = tokenizer.eos_token
+    # Load tokenizer from base model
+    tokenizer = AutoTokenizer.from_pretrained(base_model_name)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     
     # Load base model with optimization
     model = AutoModelForCausalLM.from_pretrained(
@@ -52,13 +53,6 @@ def load_model():
     logger.info(f"Loading LoRA adapter: {lora_adapter_name}")
     from peft import PeftModel
     model = PeftModel.from_pretrained(model, lora_adapter_name)
-    
-    # Load LoRA adapter if exists
-    lora_path = os.getenv("LORA_PATH", "/app/llama3-8b-finetuned-ctu")
-    if os.path.exists(lora_path):
-        from peft import PeftModel
-        logger.info(f"Loading LoRA adapter from {lora_path}")
-        model = PeftModel.from_pretrained(model, lora_path)
     
     # Enable optimizations
     if torch.cuda.is_available():
