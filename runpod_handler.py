@@ -26,7 +26,7 @@ def load_model():
     
     logger.info("Loading model...")
     
-    model_name = os.getenv("MODEL_NAME", "unsloth/llama-3-8b-instruct-bnb-4bit")
+    model_name = os.getenv("MODEL_NAME", "thuanhero1/llama3-8b-finetuned-ctu")
     
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(model_name)

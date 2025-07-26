@@ -56,7 +56,7 @@ class HealthResponse(BaseModel):
 # Global variables
 model = None
 tokenizer = None
-MODEL_NAME = os.getenv("MODEL_NAME", "your-username/llama3-8b-finetuned-ctu")
+MODEL_NAME = os.getenv("MODEL_NAME", "thuanhero1/llama3-8b-finetuned-ctu")
 
 def load_model():
     """Load model from HuggingFace"""
